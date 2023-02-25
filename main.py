@@ -1,20 +1,21 @@
 import sys
 
-from PyQt5 import uic
+from UI.main_ui import Ui_MainWindow
+from UI.edit_ui import Ui_EditWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 import sqlite3
 
 
-class MyWidget(QMainWindow):
+class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("main.ui", self)
+        self.setupUi(self)
         self.add.clicked.connect(self.add_fnc)
         self.change.clicked.connect(self.change_fnc)
         self.update_table()
 
     def update_table(self):
-        self.con = sqlite3.connect("coffee.sqlite")
+        self.con = sqlite3.connect("data/coffee.sqlite")
         self.cur = self.con.cursor()
         self.result = self.cur.execute("SELECT * FROM Coffee").fetchall()
 
@@ -34,14 +35,14 @@ class MyWidget(QMainWindow):
         self.change_form.show()
 
 
-class Add_Form(QMainWindow):
+class Add_Form(QMainWindow, Ui_EditWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("edit.ui", self)
+        self.setupUi(self)
         self.save.clicked.connect(self.save_fnc)
 
     def save_fnc(self):
-        con = sqlite3.connect("coffee.sqlite")
+        con = sqlite3.connect("data/coffee.sqlite")
         cur = con.cursor()
         cur.execute(f"INSERT INTO Coffee(Название, Степень, Вид, Вкус, Цена, Объем)"
                     f"VALUES('{self.name.text()}', '{self.st.text()}', "
@@ -52,10 +53,10 @@ class Add_Form(QMainWindow):
         ex.update_table()
 
 
-class Change_Form(QMainWindow):
+class Change_Form(QMainWindow, Ui_EditWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("edit.ui", self)
+        self.setupUi(self)
         self.save.clicked.connect(self.save_fnc)
         self.name.setText(ex.result[ex.tableWidget.currentRow()][1])
         self.st.setText(ex.result[ex.tableWidget.currentRow()][2])
@@ -65,7 +66,7 @@ class Change_Form(QMainWindow):
         self.ob.setText(str(ex.result[ex.tableWidget.currentRow()][6]))
 
     def save_fnc(self):
-        con = sqlite3.connect("coffee.sqlite")
+        con = sqlite3.connect("data/coffee.sqlite")
         cur = con.cursor()
         cur.execute(f"UPDATE Coffee SET Название = '{self.name.text()}',"
                     f"Объем = '{self.ob.text()}',"
